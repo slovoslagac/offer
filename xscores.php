@@ -7,6 +7,8 @@ if (isset($_POST["hockey"])) {
     $league = $_POST['league'];
     $_SESSION["season"] = $season;
     $_SESSION["league"] = $league;
+    $_SESSION["source"] = 11;
+    $_SESSION["sport"] = 4;
 
     header("Location:results.php");
 }
@@ -30,6 +32,7 @@ include $head;
 ?>
 <body>
 
+
 <?php
 
 include $leftmenu;
@@ -50,12 +53,13 @@ include $leftmenu;
 
             <div class="row">
 
-                <div class="col-xs-6 col-sm-6">
+                <div class="col-12 col-lg-6">
                     <div class="card">
                         <div class="card-header">
                             <strong class="card-title">Skidanje hokeja</strong>
                         </div>
                         <div class="card-body">
+<!--                            proveriti jel dobar name-->
                             <form method="post" action="<?php echo $_SERVER["PHP_SELF"] ?>" name="hockey">
                                 <select data-placeholder="Izaberi sezonu" class="standardSelect" tabindex="1" name="season" required>
                                     <option value=""></option>

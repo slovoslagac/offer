@@ -6,7 +6,7 @@
  * Time: 14:29
  */
 
-class xscoresMatch
+class offerMatch
 {
     public $date = null;
     public $time = null;
@@ -15,14 +15,16 @@ class xscoresMatch
     public $awayteam = null;
     public $awayteamid = null;
     public $datetime = null;
-    public $sportid = 4;
-    public $source = 11;
+    public $sportid = null;
+    public $source = null;
     public $season = null;
     public $matchid = null;
     public $match = null;
     public $leagueid = null;
     public $league = null;
     public $round = null;
+    public $ht =null;
+    public $ft = null;
 
     public function setAttr($attr, $val)
     {
@@ -32,6 +34,25 @@ class xscoresMatch
     public function getData()
     {
         var_dump(get_object_vars($this));
+    }
+
+    public function addResult($m, $v, $rt, $sr, $sp){
+        global $conn;
+        $ins = $conn->prepare("insert into ulaz_results (utk_id, value, result_type, source_id, sport_id) values (:m, :v, :rt, :sr, :sp)");
+        $ins->bindParam(":m", $m);
+        $ins->bindParam(":v", $v);
+        $ins->bindParam(":rt", $rt);
+        $ins->bindParam(":sr", $sr);
+        $ins->bindParam(":sp", $sp);
+        $ins->execute();
+    }
+
+    public function checkResult(){
+        if($this->ht != null){
+            $this->addResult($this->matchid, $this->ht, 'halfTimeScore', $this->source, $this->sportid);
+        } elseif ($this->ft != null) {
+            $this->addResult($this->matchid, $this->ft, 'fullTimeScore', $this->source, $this->sportid);
+        }
     }
 
     public function add_match()
@@ -66,5 +87,6 @@ class xscoresMatch
         $insert_new_match->bindParam(':ut', $ut);
         $insert_new_match->bindParam(':rn', $rn);
         $insert_new_match->execute();
+        $this->checkResult();
     }
 }

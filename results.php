@@ -1,9 +1,24 @@
 <!doctype html>
 <?php include_once('includes/init.php');
 session_start();
-if (isset($_SESSION['league']) && isset($_SESSION['season'])) {
-    $data = getHockey($_SESSION['league'], $_SESSION['season']);
-//    var_dump($data);
+
+if (isset($_SESSION['league'])) {
+    if($_SESSION["sport"] == 4 && $_SESSION["source"] == 11 && isset($_SESSION['season'])){
+        $data = getHockey($_SESSION['league'], $_SESSION['season']);
+        $sport = $_SESSION["sport"];
+        $source = $_SESSION["source"];
+
+    }
+    else if ($_SESSION["sport"] == 1 && $_SESSION["source"] == 13)
+    {
+        $data1 = getBetexplorer($_SESSION['league']);
+        $data2= getBetexplorerMatchResult($_SESSION['league']);
+        $data = array_merge($data1,$data2);
+        $sport = $_SESSION["sport"];
+        $source = $_SESSION["source"];
+
+
+    }
     unset($_SESSION);
 }
 
@@ -12,6 +27,7 @@ if (isset($_POST['offer'])) {
     $del = 'truncate ulaz_new';
     $del1 = 'truncate ulaz_results';
     $del2 = 'truncate ulaz_details';
+    $update = 'call import_statistic_data()';
     $prep = $conn->prepare($del);
     $prep->execute();
     $prep = $conn->prepare($del1);
@@ -19,12 +35,16 @@ if (isset($_POST['offer'])) {
     $prep = $conn->prepare($del2);
     $prep->execute();
 
+
     foreach ($data as $item ){
-        $newmatch = new xscoresMatch();
-        $newmatch = $item;
+        $newmatch = new offerMatch();
+        $newmatch = $item; $newmatch->setAttr("sportid", $sport); $newmatch->setAttr("source", $source);
         $newmatch->add_match();
         unset($newmatch);
     }
+
+    $prep = $conn->prepare($update);
+    $prep->execute();
 
 }
 ?>
@@ -72,16 +92,20 @@ include $leftmenu;
                                 <thead>
                                 <tr>
                                     <th>Datum</th>
+                                    <th>Round</th>
                                     <th>Domaćin</th>
                                     <th>Gost</th>
+                                    <th>Rezultat</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <?php foreach ($data as $item) { ?>
                                     <tr>
                                         <td><?php echo $item->datetime ?></td>
+                                        <td><?php echo (isset($item->round))? $item->round : "-:-" ?></td>
                                         <td><?php echo $item->hometeam ?></td>
                                         <td><?php echo $item->awayteam ?></td>
+                                        <td><?php echo (isset($item->ft))? $item->ft : "-:-" ?></td>
                                     </tr>
 
                                 <?php } ?>
